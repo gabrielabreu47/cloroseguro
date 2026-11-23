@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CloroSeguro</title>
+<meta name="description" content="Calcula cuánto cloro echarle a tu tinaco, cisterna o botellón, cuándo volver a clorar y si tu agua corroe las tuberías.">
+<meta name="theme-color" content="#0b5f7a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="iconos/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="iconos/icono-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="cabecera">
+  <div class="envoltura cabecera__fila">
+    <a class="marca" href="#calcular" aria-label="CloroSeguro, inicio">
+      <svg class="marca__gota" viewBox="0 0 40 48" aria-hidden="true">
+        <path d="M20 2 C20 2 4 20 4 31 a16 16 0 0 0 32 0 C36 20 20 2 20 2 Z" />
+        <text x="20" y="36" text-anchor="middle">Cl</text>
+      </svg>
+      <span class="marca__texto">
+        <span class="marca__nombre">CloroSeguro</span>
+        <span class="marca__lema">Cloro bien medido para el agua de tu casa</span>
+      </span>
+    </a>
+    <nav class="pestanas" role="tablist" aria-label="Secciones">
+      <button class="pestana" role="tab" id="tab-calcular" aria-controls="vista-calcular" data-vista="calcular" aria-selected="true">Dosis</button>
+      <button class="pestana" role="tab" id="tab-verificar" aria-controls="vista-verificar" data-vista="verificar" aria-selected="false">Corregir</button>
+      <button class="pestana" role="tab" id="tab-decaimiento" aria-controls="vista-decaimiento" data-vista="decaimiento" aria-selected="false">Decaimiento</button>
+      <button class="pestana" role="tab" id="tab-corrosion" aria-controls="vista-corrosion" data-vista="corrosion" aria-selected="false">Corrosión</button>
+      <button class="pestana" role="tab" id="tab-quimica" aria-controls="vista-quimica" data-vista="quimica" aria-selected="false">Química</button>
+    </nav>
+  </div>
+</header>
+
+<main class="envoltura">
+
+  <!-- ===================== VISTA 1: CALCULAR ===================== -->
+  <section id="vista-calcular" class="vista vista--calcular" role="tabpanel" aria-labelledby="tab-calcular">
+    <form id="formCalcular" class="formulario" novalidate>
+
+      <fieldset class="paso">
+        <legend><span class="paso__num">1</span> ¿Qué vas a hacer?</legend>
+        <div class="opciones opciones--2">
+          <label class="opcion">
+            <input type="radio" name="modo" value="potabilizar" checked>
+            <span class="opcion__cuerpo">
+              <strong>Clorar agua para usar</strong>
+              <small>Para tomar, cocinar o bañarse. Cada vez que llenes el tinaco.</small>
+            </span>
+          </label>
+          <label class="opcion">
+            <input type="radio" name="modo" value="choque">
+            <span class="opcion__cuerpo">
+              <strong>Desinfectar el tinaco</strong>
+              <small>Limpieza a fondo del tanque o la cisterna. Esa agua no se toma.</small>
+            </span>
+          </label>
+        </div>
+        <div id="bloqueUrgencia" class="sub" hidden>
+          <span class="sub__titulo">¿Cuánto tiempo puedes dejarlo reposando?</span>
+          <div class="chips" role="radiogroup" aria-label="Tiempo de reposo">
+            <label class="chip"><input type="radio" name="urgencia" value="normal" checked><span>24 horas (50 mg/L)</span></label>
+            <label class="chip"><input type="radio" name="urgencia" value="urgente"><span>8 horas, me urge (100 mg/L)</span></label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="paso">
+        <legend><span class="paso__num">2</span> ¿Cuánta agua es?</legend>
+        <div class="segmentos" role="radiogroup" aria-label="Forma de indicar el volumen">
+          <label class="segmento"><input type="radio" name="modoVol" value="comun" checked><span>Tamaños comunes</span></label>
+          <label class="segmento"><input type="radio" name="modoVol" value="capacidad"><span>Sé la capacidad</span></label>
+          <label class="segmento"><input type="radio" name="modoVol" value="medir"><span>Medir el tanque</span></label>
+        </div>
+
+        <div id="volComun" class="sub">
+          <div class="chips chips--vol" role="radiogroup" aria-label="Recipiente">
+            <label class="chip"><input type="radio" name="presetVol" value="18.927"><span>Botellón<em>5 gal</em></span></label>
+            <label class="chip"><input type="radio" name="presetVol" value="208.198"><span>Tanque azul<em>55 gal</em></span></label>
+            <label class="chip"><input type="radio" name="presetVol" value="1100" checked><span>Tinaco<em>1,100 L</em></span></label>
+            <label class="chip"><input type="radio" name="presetVol" value="2500"><span>Tinaco grande<em>2,500 L</em></span></label>
+            <label class="chip"><input type="radio" name="presetVol" value="7570.82"><span>Cisterna<em>2,000 gal</em></span></label>
+          </div>
+        </div>
+
+        <div id="volCapacidad" class="sub" hidden>
+          <div class="campo-fila">
+            <div class="campo">
+              <label for="volValor">Capacidad</label>
+              <input id="volValor" type="number" inputmode="decimal" min="0" step="any" value="500">
+            </div>
+            <div class="campo">
+              <label for="volUnidad">Unidad</label>
+              <select id="volUnidad">
+                <option value="gal" selected>galones</option>
+                <option value="L">litros</option>
+                <option value="m3">m³</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="volMedir" class="sub" hidden>
+          <div class="campo-fila">
+            <div class="campo">
+              <label for="forma">Forma del tanque</label>
+              <select id="forma">
+                <option value="cilindro" selected>Redondo (tinaco)</option>
+                <option value="rectangular">Cuadrado (cisterna)</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="dimUnidad">Medí en</label>
+              <select id="dimUnidad">
+                <option value="m">metros</option>
+                <option value="cm" selected>centímetros</option>
+                <option value="ft">pies</option>
+                <option value="in">pulgadas</option>
+              </select>
+            </div>
+          </div>
+          <div class="campo-fila" id="dimsCilindro">
+            <div class="campo"><label for="diam">Diámetro</label><input id="diam" type="number" inputmode="decimal" min="0" step="any" value="110"></div>
+            <div class="campo"><label for="altoC">Altura del agua</label><input id="altoC" type="number" inputmode="decimal" min="0" step="any" value="120"></div>
+          </div>
+          <div class="campo-fila" id="dimsRect" hidden>
+            <div class="campo"><label for="largo">Largo</label><input id="largo" type="number" inputmode="decimal" min="0" step="any" value="200"></div>
+            <div class="campo"><label for="ancho">Ancho</label><input id="ancho" type="number" inputmode="decimal" min="0" step="any" value="150"></div>
+            <div class="campo"><label for="altoR">Altura del agua</label><input id="altoR" type="number" inputmode="decimal" min="0" step="any" value="120"></div>
+          </div>
+          <p class="nota">Mide la altura del <b>agua</b>, no la del tanque. Para desinfectar, mide el tanque lleno.</p>
+        </div>
+      </fieldset>
+
+      <fieldset class="paso">
+        <legend><span class="paso__num">3</span> ¿Qué cloro tienes?</legend>
+        <div class="segmentos" role="radiogroup" aria-label="Tipo de cloro">
+          <label class="segmento"><input type="radio" name="formaProd" value="liquido" checked><span>Cloro líquido de casa</span></label>
+          <label class="segmento"><input type="radio" name="formaProd" value="granulado"><span>Cloro granulado (HTH)</span></label>
+        </div>
+
+        <div id="prodLiquido" class="sub">
+          <span class="sub__titulo">¿Qué porcentaje dice la etiqueta?</span>
+          <div class="chips" role="radiogroup" aria-label="Porcentaje del cloro líquido">
+            <label class="chip"><input type="radio" name="pctLiq" value="3"><span>3 %</span></label>
+            <label class="chip"><input type="radio" name="pctLiq" value="5" checked><span>5 %</span></label>
+            <label class="chip"><input type="radio" name="pctLiq" value="6"><span>6 %</span></label>
+            <label class="chip"><input type="radio" name="pctLiq" value="10"><span>10 %</span></label>
+            <label class="chip"><input type="radio" name="pctLiq" value="otro"><span>Otro</span></label>
+          </div>
+          <div class="campo campo--corto" id="campoPctLiqOtro" hidden>
+            <label for="pctLiqOtro">Porcentaje</label>
+            <input id="pctLiqOtro" type="number" inputmode="decimal" min="0.1" max="15" step="0.1" value="4">
+          </div>
+          <div class="campo">
+            <label for="baseLiq">La etiqueta dice</label>
+            <select id="baseLiq">
+              <option value="NaOCl" selected>"Hipoclorito de sodio X %"</option>
+              <option value="disponible">"Cloro disponible / cloro activo X %"</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="prodGranulado" class="sub" hidden>
+          <span class="sub__titulo">Cloro disponible según la etiqueta</span>
+          <div class="chips" role="radiogroup" aria-label="Porcentaje del cloro granulado">
+            <label class="chip"><input type="radio" name="pctGran" value="65"><span>65 %</span></label>
+            <label class="chip"><input type="radio" name="pctGran" value="70" checked><span>70 %</span></label>
+            <label class="chip"><input type="radio" name="pctGran" value="otro"><span>Otro</span></label>
+          </div>
+          <div class="campo campo--corto" id="campoPctGranOtro" hidden>
+            <label for="pctGranOtro">Porcentaje</label>
+            <input id="pctGranOtro" type="number" inputmode="decimal" min="1" max="100" step="1" value="60">
+          </div>
+        </div>
+        <p class="nota">Usa cloro <b>sin olor</b> y sin aditivos. El de lavanda o "anti-salpique" no sirve para el agua.</p>
+      </fieldset>
+
+      <fieldset class="paso" id="pasoAgua">
+        <legend><span class="paso__num">4</span> ¿Cómo está el agua?</legend>
+        <div class="opciones opciones--3">
+          <label class="opcion opcion--compacta"><input type="radio" name="apariencia" value="clara" checked><span class="opcion__cuerpo"><strong>Clara</strong><small>Transparente</small></span></label>
+          <label class="opcion opcion--compacta"><input type="radio" name="apariencia" value="turbia"><span class="opcion__cuerpo"><strong>Algo turbia</strong><small>Un poco opaca</small></span></label>
+          <label class="opcion opcion--compacta"><input type="radio" name="apariencia" value="muy-turbia"><span class="opcion__cuerpo"><strong>Muy turbia</strong><small>Con tierra o color</small></span></label>
+        </div>
+        <div class="deslizador">
+          <div class="deslizador__cabeza">
+            <label for="pH">pH del agua</label>
+            <output id="pHSalida" for="pH">7.5</output>
+          </div>
+          <input id="pH" type="range" min="6" max="9.5" step="0.1" value="7.5" disabled>
+          <label class="check"><input type="checkbox" id="pHDesconocido" checked> No lo sé (se usa 7.5, típico del agua de la llave)</label>
+        </div>
+        <div class="deslizador">
+          <div class="deslizador__cabeza">
+            <label for="temp">Temperatura del agua</label>
+            <output id="tempSalida" for="temp">28 °C</output>
+          </div>
+          <input id="temp" type="range" min="10" max="35" step="1" value="28">
+        </div>
+      </fieldset>
+    </form>
+
+    <aside class="resultado" id="resultado" aria-live="polite">
+      <div class="receta">
+        <p class="receta__ceja" id="rCeja">Tu dosis</p>
+        <p class="receta__dosis"><span id="rCantidad">43</span> <span id="rUnidad" class="receta__unidad">mL</span></p>
+        <p class="receta__casera" id="rCasera">≈ 3 cucharadas</p>
+        <p class="receta__de" id="rDe">de cloro al 5 % para 1,100 litros de agua</p>
+        <dl class="datos">
+          <div><dt>Queda a</dt><dd id="rConc">2.0 mg/L</dd></div>
+          <div><dt>Espera</dt><dd id="rTiempo">30 min</dd></div>
+          <div><dt>Como HOCl</dt><dd id="rHOCl">51 %</dd></div>
+        </dl>
+      </div>
+
+      <div class="bloque">
+        <h2 class="bloque__titulo">Cómo hacerlo</h2>
+        <ol class="pasos" id="rPasos"></ol>
+      </div>
+
+      <div class="avisos" id="rAvisos"></div>
+
+      <div class="bloque bloque--msp" id="rMSP">
+        <h2 class="bloque__titulo">¿Y la regla de las 5 gotas por galón?</h2>
+        <p id="rMSPTexto"></p>
+      </div>
+
+      <details class="calculos" id="rCalculos">
+        <summary>Ver los cálculos paso a paso</summary>
+        <ol class="calculos__lista" id="rCalculosLista"></ol>
+      </details>
+    </aside>
+  </section>
+
+  <!-- ===================== VISTA 2: VERIFICAR ===================== -->
+  <section id="vista-verificar" class="vista vista--verificar" role="tabpanel" aria-labelledby="tab-verificar" hidden>
+    <div class="intro">
+      <h1 class="titulo">¿Le echaste cloro "al ojo"?</h1>
+      <p>Dime cuánta agua había y cuánto cloro le echaste. Te digo qué concentración quedó y qué hacer si te pasaste o te quedaste corto.</p>
+    </div>
+    <div class="verificar">
+      <form id="formVerificar" class="formulario formulario--plano" novalidate>
+        <div class="campo-fila">
+          <div class="campo"><label for="vVol">Agua</label><input id="vVol" type="number" inputmode="decimal" min="0" step="any" value="55"></div>
+          <div class="campo"><label for="vVolUnidad">Unidad</label>
+            <select id="vVolUnidad"><option value="gal" selected>galones</option><option value="L">litros</option><option value="m3">m³</option></select>
+          </div>
+        </div>
+        <div class="campo-fila">
+          <div class="campo"><label for="vCant">Le eché</label><input id="vCant" type="number" inputmode="decimal" min="0" step="any" value="1"></div>
+          <div class="campo"><label for="vCantUnidad">Medida</label>
+            <select id="vCantUnidad">
+              <option value="gotas">gotas</option>
+              <option value="cucharadita">cucharaditas</option>
+              <option value="cucharada">cucharadas</option>
+              <option value="taza" selected>tazas</option>
+              <option value="mL">mL</option>
+              <option value="L">litros</option>
+            </select>
+          </div>
+        </div>
+        <div class="campo-fila">
+          <div class="campo"><label for="vPct">Cloro al</label><input id="vPct" type="number" inputmode="decimal" min="0.1" max="15" step="0.1" value="5"></div>
+          <div class="campo"><label for="vBase">% de</label>
+            <select id="vBase"><option value="NaOCl" selected>hipoclorito de sodio</option><option value="disponible">cloro disponible</option></select>
+          </div>
+        </div>
+        <div class="campo"><label for="vApariencia">El agua estaba</label>
+          <select id="vApariencia"><option value="clara" selected>clara</option><option value="turbia">algo turbia</option></select>
+        </div>
+      </form>
+
+      <div class="veredicto" id="veredicto" aria-live="polite">
+        <p class="receta__ceja">Concentración que quedó</p>
+        <p class="veredicto__valor"><span id="vConc">—</span> <span class="receta__unidad">mg/L</span></p>
+        <div class="medidor" aria-hidden="true">
+          <div class="medidor__zona medidor__zona--bajo"></div>
+          <div class="medidor__zona medidor__zona--ok"></div>
+          <div class="medidor__zona medidor__zona--alto"></div>
+          <div class="medidor__aguja" id="vAguja"></div>
+        </div>
+        <div class="medidor__escala" aria-hidden="true"><span>0</span><span>1.5</span><span>5</span><span>8+</span></div>
+        <p class="estado" id="vEstado"></p>
+        <p id="vConsejo"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VISTA 3: DECAIMIENTO ===================== -->
+  <section id="vista-decaimiento" class="vista vista--decaimiento" role="tabpanel" aria-labelledby="tab-decaimiento" hidden>
+    <div class="intro">
+      <h1 class="titulo">¿Cuándo hay que volver a clorar?</h1>
+      <p>El cloro del tinaco se gasta con las horas. Mide el cloro libre con tiras de piscina o un kit DPD a distintas horas después de clorar. La app calcula qué tan rápido se gasta y cuándo baja de 0.2 mg/L, el mínimo recomendado.</p>
+    </div>
+
+    <div class="dos-columnas">
+      <div class="panel">
+        <div class="panel__cabeza">
+          <h2 class="bloque__titulo">Tus mediciones</h2>
+          <span class="pildora" id="dPildora">Datos de ejemplo</span>
+        </div>
+        <div class="campo campo--corto">
+          <label for="dTemp">Temperatura del agua (°C)</label>
+          <input id="dTemp" type="number" inputmode="decimal" min="0" max="45" step="0.5" value="28">
+        </div>
+        <div class="tabla-envoltura">
+          <table class="tabla-datos">
+            <thead><tr><th scope="col">Horas después de clorar</th><th scope="col">Cloro libre (mg/L)</th><th scope="col"><span class="solo-lector">Quitar</span></th></tr></thead>
+            <tbody id="dFilas"></tbody>
+          </table>
+        </div>
+        <div class="botones">
+          <button type="button" class="boton" id="dAgregar">Agregar medición</button>
+          <button type="button" class="boton boton--suave" id="dEjemplo">Cargar ejemplo</button>
+          <button type="button" class="boton boton--suave" id="dBorrar">Borrar todo</button>
+        </div>
+        <p class="nota">Empieza a medir a los 30 minutos de clorar y tapa el recipiente entre mediciones. En las tiras, ppm es lo mismo que mg/L.</p>
+      </div>
+
+      <div class="panel">
+        <h2 class="bloque__titulo">Resultado</h2>
+        <dl class="datos datos--claro datos--4" id="dDatos">
+          <div><dt>Constante k</dt><dd id="dK">—</dd></div>
+          <div><dt>Vida media</dt><dd id="dVida">—</dd></div>
+          <div><dt>Ajuste R²</dt><dd id="dR2">—</dd></div>
+          <div><dt>Vuelve a clorar en</dt><dd id="dRecloro">—</dd></div>
+        </dl>
+        <p class="nota" id="dMensaje"></p>
+        <div class="grafica__lienzo"><svg id="dGrafica" viewBox="0 0 640 300" role="img" aria-label="Cloro medido y curva calculada"></svg></div>
+        <div class="tabla-envoltura">
+          <table class="tabla-datos tabla-datos--resultado">
+            <thead><tr><th scope="col">Hora</th><th scope="col">Medido</th><th scope="col">Calculado</th><th scope="col">Error</th></tr></thead>
+            <tbody id="dErrores"></tbody>
+          </table>
+        </div>
+        <div class="botones">
+          <button type="button" class="boton boton--suave" id="dCopiar">Copiar tabla para el reporte</button>
+          <span class="nota" id="dCopiado" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel--ancho">
+      <h2 class="bloque__titulo">¿Y si hace más calor? Ecuación de Arrhenius</h2>
+      <p class="nota">Repite la medición con agua a otra temperatura, por ejemplo un recipiente a la sombra y otro al sol. Con las dos constantes se calcula la energía de activación (Ea) y se predice k a cualquier temperatura.</p>
+      <div class="arrhenius">
+        <fieldset class="experimento">
+          <legend>Experimento 1</legend>
+          <div class="campo-fila">
+            <div class="campo"><label for="aT1">Temperatura (°C)</label><input id="aT1" type="number" inputmode="decimal" step="0.5" value="28"></div>
+            <div class="campo"><label for="aK1">k (h⁻¹)</label><input id="aK1" type="number" inputmode="decimal" step="0.001" min="0" value="0.0445"></div>
+          </div>
+          <button type="button" class="boton boton--suave boton--chico" id="aUsarK">Usar la k de mis mediciones</button>
+        </fieldset>
+        <fieldset class="experimento">
+          <legend>Experimento 2 <span class="pildora" id="aPildora">Ejemplo</span></legend>
+          <div class="campo-fila">
+            <div class="campo"><label for="aT2">Temperatura (°C)</label><input id="aT2" type="number" inputmode="decimal" step="0.5" value="34"></div>
+            <div class="campo"><label for="aK2">k (h⁻¹)</label><input id="aK2" type="number" inputmode="decimal" step="0.001" min="0" value="0.07"></div>
+          </div>
+        </fieldset>
+        <div class="experimento experimento--resultado">
+          <p class="receta__ceja">Energía de activación</p>
+          <p class="arrhenius__ea"><span id="aEa">—</span> <span class="receta__unidad">kJ/mol</span></p>
+          <div class="campo-fila">
+            <div class="campo"><label for="aT3">Predecir a (°C)</label><input id="aT3" type="number" inputmode="decimal" step="0.5" value="32"></div>
+          </div>
+          <p id="aPrediccion" class="nota"></p>
+        </div>
+      </div>
+      <details class="calculos">
+        <summary>Ver los cálculos</summary>
+        <ol class="calculos__lista" id="aCalculos"></ol>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===================== VISTA 4: CORROSIÓN ===================== -->
+  <section id="vista-corrosion" class="vista vista--corrosion" role="tabpanel" aria-labelledby="tab-corrosion" hidden>
+    <div class="intro">
+      <h1 class="titulo">¿Tu agua daña las tuberías o hace sarro?</h1>
+      <p>El índice de Langelier compara el pH del agua con el pH al que el carbonato de calcio estaría justo en equilibrio. Con los datos de una tira de piscina sabes si el agua tiende a disolver metal o a dejar sarro.</p>
+    </div>
+    <div class="verificar">
+      <form id="formCorrosion" class="formulario formulario--plano" novalidate>
+        <div class="campo-fila">
+          <div class="campo"><label for="cPH">pH</label><input id="cPH" type="number" inputmode="decimal" min="4" max="11" step="0.1" value="7.6"></div>
+          <div class="campo"><label for="cTemp">Temperatura (°C)</label><input id="cTemp" type="number" inputmode="decimal" min="0" max="90" step="0.5" value="28"></div>
+        </div>
+        <div class="campo-fila">
+          <div class="campo"><label for="cCalcio">Dureza cálcica (mg/L como CaCO₃)</label><input id="cCalcio" type="number" inputmode="decimal" min="1" step="any" value="150"></div>
+          <div class="campo"><label for="cAlc">Alcalinidad total (mg/L como CaCO₃)</label><input id="cAlc" type="number" inputmode="decimal" min="1" step="any" value="120"></div>
+        </div>
+        <div class="campo">
+          <label for="cTDS">Sólidos disueltos totales, SDT (mg/L)</label>
+          <input id="cTDS" type="number" inputmode="decimal" min="1" step="any" value="300" disabled>
+          <label class="check"><input type="checkbox" id="cTDSDesconocido" checked> No tengo medidor de SDT (se usa 300 mg/L; cambia el índice en menos de 0.1)</label>
+        </div>
+        <p class="nota">Si tu tira solo da dureza total, úsala en lugar de la cálcica: el índice sale un poco más alto. En las tiras, ppm es lo mismo que mg/L.</p>
+      </form>
+
+      <div class="veredicto" aria-live="polite">
+        <p class="receta__ceja">Índice de Langelier (LSI)</p>
+        <p class="veredicto__valor"><span id="cLSI">—</span></p>
+        <div class="medidor medidor--lsi" aria-hidden="true">
+          <div class="medidor__zona medidor__zona--alto"></div>
+          <div class="medidor__zona medidor__zona--ok"></div>
+          <div class="medidor__zona medidor__zona--bajo"></div>
+          <div class="medidor__aguja" id="cAguja"></div>
+        </div>
+        <div class="medidor__escala medidor__escala--lsi" aria-hidden="true"><span>−4</span><span>−1</span><span>+1</span><span>+4</span></div>
+        <div class="medidor__leyenda" aria-hidden="true"><span>Corrosiva</span><span>Equilibrio</span><span>Forma sarro</span></div>
+        <p class="estado" id="cEstado"></p>
+        <p id="cConsejo"></p>
+        <dl class="datos datos--claro">
+          <div><dt>pH de saturación</dt><dd id="cPHs">—</dd></div>
+          <div><dt>Tu pH</dt><dd id="cPHTu">—</dd></div>
+          <div><dt>Cloro como HOCl</dt><dd id="cHOCl">—</dd></div>
+        </dl>
+        <div class="bloque bloque--msp">
+          <h2 class="bloque__titulo">El pH tira para dos lados</h2>
+          <p id="cBalance"></p>
+        </div>
+        <details class="calculos">
+          <summary>Ver los cálculos paso a paso</summary>
+          <ol class="calculos__lista" id="cCalculos"></ol>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VISTA 5: LA QUÍMICA ===================== -->
+  <section id="vista-quimica" class="vista vista--quimica" role="tabpanel" aria-labelledby="tab-quimica" hidden>
+    <div class="intro">
+      <h1 class="titulo">La química detrás de la dosis</h1>
+      <p>El cloro de casa es una solución de hipoclorito de sodio. En el agua se reparte entre dos formas: el ácido hipocloroso (HOCl), que desinfecta muy bien, y el ion hipoclorito (OCl⁻), que desinfecta mucho menos. Cuál de las dos predomina depende del pH.</p>
+    </div>
+
+    <div class="laboratorio">
+      <figure class="grafica">
+        <figcaption>
+          <strong>Distribución del cloro libre según el pH</strong>
+          <span>Mueve el pH y la temperatura para ver cómo cambia el equilibrio.</span>
+        </figcaption>
+        <div class="grafica__lienzo"><svg id="grafica" viewBox="0 0 640 320" role="img" aria-label="Fracción de HOCl y OCl− en función del pH"></svg></div>
+        <div class="grafica__controles">
+          <div class="deslizador">
+            <div class="deslizador__cabeza"><label for="qPH">pH</label><output id="qPHSalida" for="qPH">7.5</output></div>
+            <input id="qPH" type="range" min="4" max="11" step="0.1" value="7.5">
+          </div>
+          <div class="deslizador">
+            <div class="deslizador__cabeza"><label for="qTemp">Temperatura</label><output id="qTempSalida" for="qTemp">25 °C</output></div>
+            <input id="qTemp" type="range" min="5" max="35" step="1" value="25">
+          </div>
+        </div>
+        <dl class="datos datos--claro">
+          <div><dt>pKa del HOCl</dt><dd id="qPKa">7.54</dd></div>
+          <div><dt>HOCl</dt><dd id="qHOCl">52 %</dd></div>
+          <div><dt>OCl⁻</dt><dd id="qOCl">48 %</dd></div>
+        </dl>
+      </figure>
+
+      <div class="fichas">
+        <article class="ficha">
+          <h2>1. El cloro se disuelve</h2>
+          <p class="ecuacion">NaOCl<sub>(ac)</sub> → Na⁺<sub>(ac)</sub> + OCl⁻<sub>(ac)</sub></p>
+          <p class="ecuacion">Ca(OCl)₂<sub>(s)</sub> → Ca²⁺<sub>(ac)</sub> + 2 OCl⁻<sub>(ac)</sub></p>
+          <p>El líquido trae hipoclorito de sodio. El granulado (HTH) trae hipoclorito de calcio, que libera dos iones OCl⁻ por fórmula.</p>
+        </article>
+        <article class="ficha">
+          <h2>2. Equilibrio ácido-base</h2>
+          <p class="ecuacion">HOCl ⇌ H⁺ + OCl⁻ &nbsp; pKa ≈ 7.5</p>
+          <p class="ecuacion">pH = pKa + log ( [OCl⁻] / [HOCl] )</p>
+          <p>Con la ecuación de Henderson–Hasselbalch se calcula qué fracción queda como HOCl. A pH 6.5 casi todo es HOCl; a pH 9 casi nada. Por eso la app alarga el tiempo de espera cuando el pH es alto.</p>
+        </article>
+        <article class="ficha">
+          <h2>3. Dilución</h2>
+          <p class="ecuacion">C₁ · V₁ = C₂ · (V<sub>agua</sub> + V₁)</p>
+          <p>C₁ es la concentración del cloro de la botella (≈ 51,000 mg/L al 5 %) y C₂ la que queremos en el tinaco (2 mg/L). Despejando V₁ sale cuánto cloro echar.</p>
+        </article>
+        <article class="ficha">
+          <h2>4. "Cloro disponible"</h2>
+          <p class="ecuacion">HOCl + H⁺ + 2e⁻ → Cl⁻ + H₂O</p>
+          <p class="ecuacion">Cl₂ + 2e⁻ → 2 Cl⁻</p>
+          <p>Un mol de hipoclorito acepta los mismos 2 electrones que un mol de Cl₂. Por eso el poder desinfectante se expresa como masa de Cl₂: 5 % de NaOCl × (70.9 / 74.4) = 4.76 % de cloro disponible.</p>
+        </article>
+        <article class="ficha">
+          <h2>5. Cómo desinfecta</h2>
+          <p>El HOCl es una molécula neutra y pequeña: atraviesa la membrana de bacterias y virus y oxida sus proteínas y enzimas. El OCl⁻ tiene carga, le cuesta entrar a la célula y por eso actúa más lento. El efecto depende de concentración × tiempo (C·t).</p>
+        </article>
+        <article class="ficha">
+          <h2>6. El cloro se gasta</h2>
+          <p class="ecuacion">3 OCl⁻ → ClO₃⁻ + 2 Cl⁻</p>
+          <p>Con calor y luz el hipoclorito se descompone y la botella pierde fuerza. Guárdala tapada, en la sombra, y no compres más de lo que vas a usar en unos meses.</p>
+        </article>
+        <article class="ficha">
+          <h2>7. Cinética: el cloro se gasta solo</h2>
+          <p class="ecuacion">C(t) = C₀ · e^(−k·t) &nbsp; → &nbsp; ln C = ln C₀ − k·t</p>
+          <p class="ecuacion">k = A · e^(−Ea / RT)</p>
+          <p>El cloro reacciona con la materia orgánica y se descompone, así que baja con las horas. Al sacar logaritmo, los datos forman una recta y su pendiente es −k. La ecuación de Arrhenius explica por qué con calor se gasta más rápido.</p>
+        </article>
+        <article class="ficha">
+          <h2>8. Solubilidad: sarro o corrosión</h2>
+          <p class="ecuacion">CaCO₃(s) ⇌ Ca²⁺ + CO₃²⁻ &nbsp; Ksp ~ 10⁻⁹</p>
+          <p class="ecuacion">LSI = pH − pHs</p>
+          <p>pHs es el pH al que el agua estaría justo saturada de carbonato de calcio. Si el pH es mayor, el CaCO₃ precipita y forma sarro. Si es menor, el agua disuelve carbonato y ataca las tuberías de metal.</p>
+        </article>
+        <article class="ficha ficha--peligro">
+          <h2>Nunca lo mezcles</h2>
+          <p class="ecuacion">OCl⁻ + Cl⁻ + 2 H⁺ → Cl₂<sub>(g)</sub> + H₂O</p>
+          <p class="ecuacion">NH₃ + HOCl → NH₂Cl + H₂O</p>
+          <p>Con vinagre o limpiadores ácidos libera cloro gaseoso (Cl₂). Con amoníaco forma cloraminas. Los dos gases son tóxicos.</p>
+        </article>
+        <article class="ficha">
+          <h2>¿Cómo sé si quedó bien?</h2>
+          <p>Los kits de piscina (reactivo DPD) se ponen rosados con el cloro libre: más rosado, más cloro. A los 30 minutos el agua debe marcar al menos 0.5 mg/L, y mejor no más de 2 mg/L para que no sepa fuerte.</p>
+          <div class="dpd" role="img" aria-label="Escala de color del reactivo DPD de 0.2 a 3 mg/L">
+            <span style="--c: var(--dpd-1)">0.2</span>
+            <span style="--c: var(--dpd-2)">0.5</span>
+            <span style="--c: var(--dpd-3)">1.0</span>
+            <span style="--c: var(--dpd-4)">1.5</span>
+            <span style="--c: var(--dpd-5)">2.0</span>
+            <span style="--c: var(--dpd-6)">3.0</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pie envoltura">
+  <p><b>CloroSeguro</b>, proyecto ABP de Química. Valores de referencia: Organización Mundial de la Salud, Ministerio de Salud Pública de RD, Safe Water System de los CDC y Langelier (1936). <a href="https://github.com/gabrielabreu47/cloroseguro">Código en GitHub</a>.</p>
+  <p>Herramienta educativa. No reemplaza un análisis de laboratorio. Si el agua tiene olor raro, color o químicos, el cloro no la arregla: no la tomes.</p>
+</footer>
+
+<div class="barra" id="barra" hidden>
+  <div class="barra__texto"><b id="bDosis">43 mL</b> <span id="bResto">de cloro · espera 30 min</span></div>
+  <button type="button" class="barra__boton" id="bIr">Ver pasos</button>
+</div>
+
+<script src="js/quimica.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
