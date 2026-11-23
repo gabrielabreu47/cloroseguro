@@ -1,0 +1,16 @@
+{
+  "name": "CloroSeguro",
+  "short_name": "CloroSeguro",
+  "description": "Calcula cuánto cloro echarle al agua del tinaco, cuándo volver a clorar y si el agua corroe las tuberías.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef4f5",
+  "theme_color": "#0b5f7a",
+  "icons": [
+    { "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
